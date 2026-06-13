@@ -6,13 +6,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useGetMatches } from "@/hooks/matches/useGetMatches";
 import { useGetUsers } from "@/hooks/users/useGetUsers";
+import { toNepalTime } from "@/helper/nepal-time";
 
 function Predictions() {
   const [userId, setUserId] = useState("");
   const [matchId, setMatchId] = useState("");
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useGetAllPredictions(userId, matchId, page);
+  const { data, isLoading, isFetching } = useGetAllPredictions(
+    userId,
+    matchId,
+    page,
+  );
 
   const { data: usersData } = useGetUsers();
   const { data: matchesData } = useGetMatches();
@@ -22,8 +27,7 @@ function Predictions() {
 
   const predictions = data?.data || [];
   const hasMore = data?.hasMore;
-  const isPageLoading = isLoading;
-
+  const isPageLoading = isFetching;
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -180,9 +184,7 @@ function Predictions() {
 
                     {/* TIME */}
                     <div className="text-sm text-gray-500 min-w-[180px] text-right">
-                      {match?.matchTime
-                        ? new Date(match.matchTime).toLocaleString()
-                        : "-"}
+                      {match?.matchTime && toNepalTime(match?.matchTime)}
                     </div>
                   </div>
                 </Card>

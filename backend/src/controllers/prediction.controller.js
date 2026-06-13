@@ -35,11 +35,13 @@ export const getMyPredictions = async (req, res, next) => {
 
 export const getPredictions = async (req, res, next) => {
   try {
-    const { userId, matchId } = req.query;
+    const { userId, matchId, page, limit } = req.query;
 
     const predictions = await getAllPredictions({
       userId,
       matchId,
+      page: Number(page) || 1,
+      limit: Number(limit) || 10,
     });
 
     res.status(200).json(predictions);
