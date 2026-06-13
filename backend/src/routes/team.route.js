@@ -4,6 +4,7 @@ import {
   createTeam,
   deleteTeam,
   getTeams,
+  toggleTeam,
 } from "../controllers/team.controller.js";
 import { authorizeRoles } from "../middleware/role.middleware.js";
 
@@ -13,5 +14,6 @@ router.use(authMiddleware);
 router.get("/", getTeams);
 router.post("/", authorizeRoles("admin"), createTeam);
 router.delete("/:id", authorizeRoles("admin"), deleteTeam);
+router.patch("/toggle/:id", toggleTeam);
 
 export default router;

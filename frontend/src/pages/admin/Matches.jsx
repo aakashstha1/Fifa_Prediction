@@ -38,7 +38,7 @@ function Matches() {
   const { mutate: updateMatch } = useUpdateMatch();
   const { data: teamData } = useGetTeam();
 
-  const teams = teamData?.teams || teamData || [];
+  const teams = (teamData?.teams || teamData || []).filter((t) => !t.isOut);
 
   const matches = data || [];
 
@@ -172,7 +172,10 @@ function Matches() {
       {/* RIGHT - MATCH LIST */}
       <div className="w-full lg:w-1/2">
         <Card className="p-6 shadow-md">
-          <h2 className="text-xl font-bold mb-4">Matches</h2>
+          <h2 className="text-xl font-bold mb-2">Matches</h2>
+          <p>
+            Total Matches: <span className="font-bold">{matches.length}</span>
+          </p>
 
           <div className="max-h-[60vh] lg:max-h-[500px] overflow-y-auto space-y-3 pr-1 sm:pr-2">
             {isLoading ? (

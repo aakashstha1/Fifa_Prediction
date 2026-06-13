@@ -37,3 +37,21 @@ export const deleteTeamName = async (id) => {
 
   return team;
 };
+
+export const toggleTeamStatus = async (id) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new AppError("Invalid team id", 400);
+  }
+
+  const team = await Team.findById(id);
+
+  if (!team) {
+    throw new AppError("Team not found", 404);
+  }
+
+  team.isOut = !team.isOut;
+
+  await team.save();
+
+  return team;
+};

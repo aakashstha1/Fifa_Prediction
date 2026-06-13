@@ -9,6 +9,8 @@ import { useCreateTeam } from "@/hooks/team/useCreateTeam";
 import { useDeleteTeam } from "@/hooks/team/useDeleteTeam";
 import { useGetTeam } from "@/hooks/team/useGetTeam";
 import Loader from "@/components/common/Loader";
+import { useUpdateTeamStatus } from "@/hooks/team/useUpdateTeamStatus";
+import { Switch } from "@/components/ui/switch";
 
 function Team() {
   const [teamName, setTeamName] = useState("");
@@ -18,6 +20,8 @@ function Team() {
 
   const { mutate: createTeam, isPending: creating } = useCreateTeam();
   const { mutate: deleteTeam, isPending: deleting } = useDeleteTeam();
+  const { mutate: toggleTeamStatus, isPending: toggling } =
+    useUpdateTeamStatus();
 
   if (isLoading) return <Loader />;
 
@@ -78,20 +82,43 @@ function Team() {
                   key={team._id}
                   className="flex justify-between items-center p-3 border rounded-md bg-white"
                 >
-                  <span>{team.name}</span>
+                  {/* LEFT SIDE */}
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium">{team.name}</span>
 
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    disabled={deleting}
-                    onClick={() =>
-                      deleteTeam(team._id, {
-                        onSuccess: () => toast.success("Team deleted"),
-                      })
-                    }
-                  >
-                    Delete
-                  </Button>
+                    {/* STATUS BADGE */}
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        team.isOut
+                          ? "bg-red-100 text-red-600"
+                          : "bg-green-100 text-green-600"
+                      }`}
+                    >
+                      {team.isOut ? "Out" : "Active"}
+                    </span>
+                  </div>
+
+                  {/* RIGHT SIDE - SWITCH + DELETE */}
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={team.isOut}
+                      disabled={toggling}
+                      onCheckedChange={() => toggleTeamStatus(team._id)}
+                    />
+
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={deleting}
+                      onClick={() =>
+                        deleteTeam(team._id, {
+                          onSuccess: () => toast.success("Team deleted"),
+                        })
+                      }
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>

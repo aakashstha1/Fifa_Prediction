@@ -43,4 +43,6 @@ const matchSchema = new mongoose.Schema(
   },
 );
 
+matchSchema.index({ matchTime: 1, ended: 1 });
+
 export default mongoose.model("Match", matchSchema);

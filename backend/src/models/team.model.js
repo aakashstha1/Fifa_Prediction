@@ -6,6 +6,10 @@ const teamSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  isOut: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 teamSchema.index(

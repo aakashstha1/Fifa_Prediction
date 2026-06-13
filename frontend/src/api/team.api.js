@@ -13,3 +13,8 @@ export const getTeams = async () => {
   const res = await api.get("/teams");
   return res.data;
 };
+
+export const toggleTeam = async (id) => {
+  const res = await api.patch(`/teams/toggle/${id}`);
+  return res.data;
+};

@@ -2,6 +2,7 @@ import {
   createNewTeam,
   deleteTeamName,
   getAllTeams,
+  toggleTeamStatus,
 } from "../services/team.service.js";
 
 // ------------------------------------------------------------- get Teams -------------------------------------------
@@ -30,6 +31,21 @@ export const deleteTeam = async (req, res, next) => {
     const teamId = req.params.id;
     const team = await deleteTeamName(teamId);
     res.json({ message: "Team deleted successfully", team });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const toggleTeam = async (req, res, next) => {
+  try {
+    const teamId = req.params.id;
+
+    const team = await toggleTeamStatus(teamId);
+
+    res.json({
+      message: `Team ${team.isOut ? "disabled" : "enabled"} successfully`,
+      team,
+    });
   } catch (err) {
     next(err);
   }
