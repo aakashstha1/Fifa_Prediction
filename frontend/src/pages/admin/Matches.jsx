@@ -106,10 +106,10 @@ function Matches() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row gap-6 p-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row gap-4 lg:gap-6 p-3 sm:p-6">
       {/* LEFT - CREATE MATCH */}
-      <div className="md:w-1/2 flex justify-center items-start">
-        <Card className="w-[420px] p-6 space-y-4 shadow-md">
+      <div className="w-full lg:w-1/2 flex justify-center lg:sticky lg:top-6 self-start">
+        <Card className="w-full max-w-md p-6 space-y-4 shadow-md">
           <h1 className="text-xl font-bold text-center">Create Match</h1>
 
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -124,7 +124,7 @@ function Matches() {
             <div className="space-y-1">
               <Label>Team 1</Label>
               <select
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2 text-sm"
                 value={team1}
                 onChange={(e) => setTeam1(e.target.value)}
               >
@@ -140,7 +140,7 @@ function Matches() {
             <div className="space-y-1">
               <Label>Team 2</Label>
               <select
-                className="w-full border rounded-md p-2"
+                className="w-full border rounded-md p-2 text-sm"
                 value={team2}
                 onChange={(e) => setTeam2(e.target.value)}
               >
@@ -170,11 +170,11 @@ function Matches() {
       </div>
 
       {/* RIGHT - MATCH LIST */}
-      <div className="md:w-1/2">
+      <div className="w-full lg:w-1/2">
         <Card className="p-6 shadow-md">
           <h2 className="text-xl font-bold mb-4">Matches</h2>
 
-          <div className="max-h-[500px] overflow-y-auto space-y-3 pr-2">
+          <div className="max-h-[60vh] lg:max-h-[500px] overflow-y-auto space-y-3 pr-1 sm:pr-2">
             {isLoading ? (
               <Loader />
             ) : matches.length === 0 ? (
@@ -183,7 +183,7 @@ function Matches() {
               matches.map((match) => (
                 <div
                   key={match._id}
-                  className={`p-3 border rounded-md flex justify-between items-center ${
+                  className={`p-3 border rounded-md flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 ${
                     match?.ended
                       ? "bg-red-50 border-red-300"
                       : "bg-green-50 border-green-300"
@@ -234,7 +234,7 @@ function Matches() {
                   </div>
 
                   {/* RIGHT SIDE BUTTONS */}
-                  <div className="flex gap-2">
+                  <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
                     <Button size="sm" onClick={() => handleOpenUpdate(match)}>
                       Update
                     </Button>
@@ -260,7 +260,7 @@ function Matches() {
 
       {/* UPDATE DIALOG */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="w-[95%] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Update Winning Team</DialogTitle>
           </DialogHeader>
@@ -280,7 +280,7 @@ function Matches() {
 
             {/* TEAM SELECT */}
             <select
-              className="w-full border rounded-md p-2"
+              className="w-full border rounded-md p-2 text-sm"
               value={winningTeam}
               disabled={isDraw}
               onChange={(e) => setWinningTeam(e.target.value)}
