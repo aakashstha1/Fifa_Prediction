@@ -7,7 +7,8 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: loginUser,
 
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      localStorage.setItem("token", data.token);
       await queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
   });
