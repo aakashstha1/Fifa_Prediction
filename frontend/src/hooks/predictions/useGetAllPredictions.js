@@ -1,25 +1,23 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { api } from "@/api/axios";
+import { api } from "@/configs/axios-config";
+import { useQuery } from "@tanstack/react-query";
 
-export const useGetAllPredictions = (userId, matchId) => {
-  return useInfiniteQuery({
-    queryKey: ["predictions", userId, matchId],
+export const useGetAllPredictions = (userId, matchId, page) => {
+  return useQuery({
+    queryKey: ["predictions", userId, matchId, page],
 
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async () => {
       const { data } = await api.get("/predictions", {
         params: {
-          page: pageParam,
+          page,
           limit: 10,
-          userId,
-          matchId,
+          userId: userId || undefined,
+          matchId: matchId || undefined,
         },
       });
 
       return data;
     },
 
-    getNextPageParam: (lastPage) => {
-      return lastPage.hasMore ? lastPage.nextPage : undefined;
-    },
+    keepPreviousData: true,
   });
 };

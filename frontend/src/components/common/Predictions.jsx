@@ -10,9 +10,9 @@ import { useGetUsers } from "@/hooks/users/useGetUsers";
 function Predictions() {
   const [userId, setUserId] = useState("");
   const [matchId, setMatchId] = useState("");
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useGetAllPredictions(userId, matchId);
+  const { data, isLoading } = useGetAllPredictions(userId, matchId, page);
 
   const { data: usersData } = useGetUsers();
   const { data: matchesData } = useGetMatches();
@@ -20,7 +20,9 @@ function Predictions() {
   const users = usersData || [];
   const matches = matchesData || [];
 
-  const predictions = data?.pages?.flatMap((page) => page.data) || [];
+  const predictions = data?.data || [];
+  const hasMore = data?.hasMore;
+  const isPageLoading = isLoading;
 
   if (isLoading) {
     return (
@@ -39,7 +41,10 @@ function Predictions() {
         <select
           className="border p-2 rounded-md"
           value={userId}
-          onChange={(e) => setUserId(e.target.value)}
+          onChange={(e) => {
+            setUserId(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">All Users</option>
           {users.map((u) => (
@@ -52,7 +57,10 @@ function Predictions() {
         <select
           className="border p-2 rounded-md"
           value={matchId}
-          onChange={(e) => setMatchId(e.target.value)}
+          onChange={(e) => {
+            setMatchId(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="">All Matches</option>
           {matches.map((m) => (
@@ -183,16 +191,20 @@ function Predictions() {
           </div>
 
           {/* LOAD MORE */}
-          {hasNextPage && (
-            <div className="flex justify-center mt-6">
-              <Button
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-              >
-                {isFetchingNextPage ? "Loading..." : "Load More"}
-              </Button>
-            </div>
-          )}
+          <div className="flex justify-center gap-2 mt-6">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Prev
+            </Button>
+
+            <span className="px-3 py-2 text-sm">Page {page}</span>
+
+            <Button
+              disabled={!hasMore || isPageLoading}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </>
       )}
     </div>
