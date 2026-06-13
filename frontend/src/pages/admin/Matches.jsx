@@ -51,12 +51,8 @@ function Matches() {
       return;
     }
 
-    const nepalOffsetMs = 5 * 60 * 60 * 1000 + 45 * 60 * 1000; // 5h 45m
-    const localDate = new Date(matchTime);
-    const utcDate = new Date(localDate.getTime() - nepalOffsetMs);
-
     createMatch(
-      { matchNo, team1, team2, matchTime: utcDate.toISOString() },
+      { matchNo, team1, team2, matchTime },
       {
         onSuccess: () => {
           toast.success("Match created");
