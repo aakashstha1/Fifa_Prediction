@@ -23,11 +23,17 @@ import { useCreatePrediction } from "@/hooks/predictions/useCreatePrediction";
 import { toast } from "sonner";
 import Loader from "@/components/common/Loader";
 import { toNepalTime } from "@/helper/nepal-time";
+import { useGetMyPredictions } from "@/hooks/predictions/useGetMyPredictions";
 
 function PredictMatches() {
   const { data, isLoading } = useGetMatches();
+  const { data: myPredictions } = useGetMyPredictions();
   const { mutate: createPrediction, isPending } = useCreatePrediction();
   const matches = data || [];
+
+  const predictedMatchIds = new Set(
+    (myPredictions || []).map((p) => p.match?._id || p.match),
+  );
 
   const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -86,7 +92,14 @@ function PredictMatches() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {matches.map((match) => {
             const isEnded = match.ended;
+            const alreadyPredicted = predictedMatchIds.has(match._id);
 
+            const isDisabled = isEnded || alreadyPredicted;
+            const buttonText = isEnded
+              ? "Match Ended"
+              : alreadyPredicted
+                ? "Already Predicted"
+                : "Predict Now";
             return (
               <Card
                 key={match._id}
@@ -99,7 +112,6 @@ function PredictMatches() {
                       isEnded ? "bg-red-500" : "bg-green-500 animate-pulse"
                     }`}
                   ></span>
-
                   <span className="text-sm font-semibold">
                     Match #{match.matchNo}
                   </span>
@@ -115,7 +127,6 @@ function PredictMatches() {
                 </div>
 
                 {/* RESULT */}
-
                 {match?.isDraw ? (
                   <div className="text-xs text-green-600 font-semibold">
                     🤝 Draw
@@ -134,10 +145,10 @@ function PredictMatches() {
                 {/* BUTTON */}
                 <Button
                   className="w-full"
-                  disabled={isEnded}
-                  onClick={() => handlePredictClick(match)}
+                  disabled={isDisabled}
+                  onClick={() => !isDisabled && handlePredictClick(match)}
                 >
-                  {isEnded ? "Match Ended" : "Predict Now"}
+                  {buttonText}
                 </Button>
               </Card>
             );
@@ -145,13 +156,12 @@ function PredictMatches() {
         </div>
       )}
 
-      {/* ---------------- PREDICT DIALOG ---------------- */}
+      {/* PREDICT DIALOG */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Predict Winner</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4">
             <select
               className="w-full border rounded-md p-2"
@@ -166,7 +176,6 @@ function PredictMatches() {
                 {selectedMatch?.team2?.name}
               </option>
             </select>
-
             <Button
               className="w-full"
               onClick={handleSubmit}
@@ -178,20 +187,17 @@ function PredictMatches() {
         </DialogContent>
       </Dialog>
 
-      {/* ---------------- CONFIRM ALERT ---------------- */}
+      {/* CONFIRM ALERT */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           </AlertDialogHeader>
-
           <p className="text-sm text-gray-600">
             Once submitted, your prediction cannot be undone.
           </p>
-
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-
             <AlertDialogAction onClick={handleConfirm} disabled={isPending}>
               {isPending ? "Submitting..." : "Yes, Submit"}
             </AlertDialogAction>
