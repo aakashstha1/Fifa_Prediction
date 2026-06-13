@@ -28,6 +28,7 @@ function Predictions() {
   const predictions = data?.data || [];
   const hasMore = data?.hasMore;
   const isPageLoading = isFetching;
+  const totalPredictions = data?.total;
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -73,9 +74,9 @@ function Predictions() {
             </option>
           ))}
         </select>
-        <p>
+        <p className="flex items-center">
           Total Predictions:{" "}
-          <span className="font-bold">{predictions.length}</span>
+          <span className="font-bold">{totalPredictions}</span>
         </p>
       </div>
 

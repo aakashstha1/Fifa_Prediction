@@ -98,5 +98,6 @@ export const getAllPredictions = async ({
     data: predictions,
     nextPage: page + 1,
     hasMore: skip + limit < total,
+    total,
   };
 };
