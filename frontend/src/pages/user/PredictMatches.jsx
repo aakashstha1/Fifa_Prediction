@@ -22,6 +22,7 @@ import {
 import { useCreatePrediction } from "@/hooks/predictions/useCreatePrediction";
 import { toast } from "sonner";
 import Loader from "@/components/common/Loader";
+import { toNepalTime } from "@/helper/nepal-time";
 
 function PredictMatches() {
   const { data, isLoading } = useGetMatches();
@@ -127,7 +128,7 @@ function PredictMatches() {
 
                 {/* TIME */}
                 <div className="text-xs text-gray-500">
-                  {new Date(match.matchTime).toLocaleString()}
+                  {toNepalTime(match?.matchTime)}
                 </div>
 
                 {/* BUTTON */}

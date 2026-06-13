@@ -18,6 +18,7 @@ import { useUpdateMatch } from "@/hooks/matches/useUpdateMatch";
 import { useGetTeam } from "@/hooks/team/useGetTeam";
 import Loader from "@/components/common/Loader";
 import { Switch } from "@/components/ui/switch";
+import { toNepalTime } from "@/helper/nepal-time";
 
 function Matches() {
   const [matchNo, setMatchNo] = useState("");
@@ -50,8 +51,12 @@ function Matches() {
       return;
     }
 
+    const nepalOffsetMs = 5 * 60 * 60 * 1000 + 45 * 60 * 1000; // 5h 45m
+    const localDate = new Date(matchTime);
+    const utcDate = new Date(localDate.getTime() - nepalOffsetMs);
+
     createMatch(
-      { matchNo, team1, team2, matchTime },
+      { matchNo, team1, team2, matchTime: utcDate.toISOString() },
       {
         onSuccess: () => {
           toast.success("Match created");
@@ -228,7 +233,7 @@ function Matches() {
 
                     {/* MATCH TIME */}
                     <span className="text-xs text-gray-600">
-                      {new Date(match?.matchTime).toLocaleString()}
+                      {toNepalTime(match?.matchTime)}
                     </span>
                   </div>
 

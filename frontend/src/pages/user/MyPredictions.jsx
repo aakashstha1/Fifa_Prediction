@@ -2,6 +2,7 @@ import Loader from "@/components/common/Loader";
 import { Card } from "@/components/ui/card";
 import { useGetMyPredictions } from "@/hooks/predictions/useGetMyPredictions";
 import { useAuth } from "@/hooks/useAuth";
+import { toNepalTime } from "@/helper/nepal-time";
 
 function MyPredictions() {
   const { data, isLoading } = useGetMyPredictions();
@@ -116,9 +117,7 @@ function MyPredictions() {
 
                 {/* TIME */}
                 <div className="text-xs text-gray-500">
-                  {match?.matchTime
-                    ? new Date(match.matchTime).toLocaleString()
-                    : "No date"}
+                  {match?.matchTime && toNepalTime(match?.matchTime)}
                 </div>
               </Card>
             );
