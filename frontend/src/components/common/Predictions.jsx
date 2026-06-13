@@ -73,6 +73,10 @@ function Predictions() {
             </option>
           ))}
         </select>
+        <p>
+          Total Predictions:{" "}
+          <span className="font-bold">{predictions.length}</span>
+        </p>
       </div>
 
       {/* LIST */}
