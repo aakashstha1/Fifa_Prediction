@@ -14,10 +14,6 @@ function MainLayout() {
       <main className="min-h-screen">
         <Outlet />
       </main>
-
-      <footer>
-        <p>© 2026 My App</p>
-      </footer>
     </div>
   );
 }
