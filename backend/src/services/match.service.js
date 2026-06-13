@@ -4,7 +4,7 @@ import Team from "../models/team.model.js";
 import Prediction from "../models/prediction.model.js";
 import { validateObjectId } from "../utils/MongooseIdValidator.js";
 import AppError from "../utils/AppError.js";
-import DateTime from "luxon";
+import { DateTime } from "luxon";
 
 // ------------------------------------------------- Create Match -------------------------------------------
 export const createMatchService = async (matchData) => {
@@ -123,7 +123,6 @@ export const deleteMatchService = async (id) => {
 // };
 
 export const updateMatchWin = async (id, { teamId, isDraw }) => {
-  console.log(id, { teamId, isDraw });
 
   validateObjectId(id, "matchId");
 
