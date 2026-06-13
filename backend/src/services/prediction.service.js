@@ -68,35 +68,28 @@ export const getAllMyPredictions = async (userId) => {
 //     });
 //   return predictions;
 // };
-export const getAllPredictions = async ({
-  page = 1,
-  limit = 10,
-  userId,
-  matchId,
-}) => {
-  const skip = (page - 1) * limit;
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { api } from "@/api/axios";
 
-  const query = {};
+export const useGetAllPredictions = (userId, matchId) => {
+  return useInfiniteQuery({
+    queryKey: ["predictions", userId, matchId],
 
-  if (userId) query.user = userId;
-  if (matchId) query.match = matchId;
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await api.get("/predictions", {
+        params: {
+          page: pageParam,
+          limit: 10,
+          userId,
+          matchId,
+        },
+      });
 
-  const predictions = await Prediction.find(query)
-    .populate("user")
-    .populate("predictedWinner")
-    .populate({
-      path: "match",
-      populate: [{ path: "team1" }, { path: "team2" }, { path: "winningTeam" }],
-    })
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+      return data;
+    },
 
-  const total = await Prediction.countDocuments(query);
-
-  return {
-    data: predictions,
-    nextPage: page + 1,
-    hasMore: skip + limit < total,
-  };
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasMore ? lastPage.nextPage : undefined;
+    },
+  });
 };
