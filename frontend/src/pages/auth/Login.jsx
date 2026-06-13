@@ -29,6 +29,7 @@ function Login() {
       {
         onSuccess: (data) => {
           toast.success(data?.message || "Login successful");
+          localStorage.setItem("token", data.token);
           const user = data?.user;
           if (user?.role === "admin") {
             navigate("/admin", { replace: true });

@@ -10,7 +10,9 @@ export const useLogout = () => {
     mutationFn: logoutUser,
 
     onSuccess: () => {
+      localStorage.removeItem("token");
       queryClient.setQueryData(["authUser"], null);
+      queryClient.clear();
 
       navigate("/login", { replace: true });
     },

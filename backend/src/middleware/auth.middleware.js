@@ -3,7 +3,8 @@ import User from "../models/user.model.js";
 import AppError from "../utils/AppError.js";
 
 export const authMiddleware = async (req, res, next) => {
-  const token = req.cookies.access_token;
+  const token =
+    req.cookies?.access_token || req.headers.authorization?.split(" ")[1];
   if (!token) {
     return next(new AppError("No token provided", 401));
   }
