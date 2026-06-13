@@ -4,6 +4,7 @@ import Team from "../models/team.model.js";
 import Prediction from "../models/prediction.model.js";
 import { validateObjectId } from "../utils/MongooseIdValidator.js";
 import AppError from "../utils/AppError.js";
+import DateTime from "luxon";
 
 // ------------------------------------------------- Create Match -------------------------------------------
 export const createMatchService = async (matchData) => {
@@ -13,7 +14,11 @@ export const createMatchService = async (matchData) => {
     throw new AppError("matchNo is required", 400);
   }
 
-  const matchTime = new Date(matchData.matchTime);
+  const matchTime = DateTime.fromISO(matchData.matchTime, {
+    zone: "Asia/Kathmandu",
+  })
+    .toUTC()
+    .toJSDate();
 
   if (team1 === team2) {
     throw new AppError("Teams must be different", 400);

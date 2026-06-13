@@ -50,9 +50,10 @@ function Matches() {
       toast.error("All fields are required");
       return;
     }
+    console.log(matchTime);
 
     createMatch(
-      { matchNo, team1, team2, matchTime },
+      { matchNo, team1, team2, matchTime: matchTime + ":00" },
       {
         onSuccess: () => {
           toast.success("Match created");
