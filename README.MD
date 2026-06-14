@@ -33,14 +33,16 @@ fifa-world-cup-predictor/
 │ ├── src/
 │ │ ├── components/
 │ │ ├── hooks/
-│ │ ├── queries/ # TanStack Query setups
+│ │ ├── api/ 
 │ │ └── pages/
 │ └── package.json
 ├── backend/ # Node.js + Express (Render)
 │ ├── controllers/
 │ ├── routes/
 │ ├── models/
-│ └── server.js
+│ ├── services/
+│ └── app.js
+├── index.js
 ├── package.json
 ├── README.md
 └── .env
@@ -55,10 +57,8 @@ fifa-world-cup-predictor/
 
 ## 🌐 Live Deployment
 
-- **Frontend**: Hosted on [Netlify](https://your-netlify-url.netlify.app)
-- **Backend**: Hosted on [Render](https://your-render-url.render.com)
+-**Hosted on**: https://fifa-predictions.netlify.app
 
-*Replace the URLs above with your actual deployment URLs*
 
 ## 🚦 Getting Started
 
@@ -72,8 +72,8 @@ fifa-world-cup-predictor/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/fifa-world-cup-predictor.git
-   cd fifa-world-cup-predictor
+   git clone https://github.com/aakashstha1/Fifa_Prediction.git
+   cd Fifa_Prediction
    ```
 
 2. **Set up Backend**
@@ -87,6 +87,11 @@ fifa-world-cup-predictor/
    PORT=5000
    MONGODB_URI=your_mongodb_connection_string
    NODE_ENV=development
+   JWT_SECRET=secret_key
+    JWT_EXPIRES_IN=expire_time
+    NODE_ENV=development
+
+FRONTEND_URL=http://localhost:5173
    ```
 
    ```bash
