@@ -42,9 +42,9 @@ function Predictions() {
       <h1 className="text-2xl font-bold mb-6">All Predictions</h1>
 
       {/* FILTERS */}
-      <div className="flex gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <select
-          className="border p-2 rounded-md"
+          className="border p-2 rounded-md w-full sm:w-auto"
           value={userId}
           onChange={(e) => {
             setUserId(e.target.value);
@@ -60,7 +60,7 @@ function Predictions() {
         </select>
 
         <select
-          className="border p-2 rounded-md"
+          className="border p-2 rounded-md w-full sm:w-auto"
           value={matchId}
           onChange={(e) => {
             setMatchId(e.target.value);

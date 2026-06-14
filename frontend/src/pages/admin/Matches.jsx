@@ -108,7 +108,7 @@ function Matches() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row gap-4 lg:gap-6 p-3 sm:p-6">
       {/* LEFT - CREATE MATCH */}
-      <div className="w-full lg:w-1/2 flex justify-center lg:sticky lg:top-6 self-start">
+      <div className="w-full lg:w-1/2 flex justify-center">
         <Card className="w-full max-w-md p-6 space-y-4 shadow-md">
           <h1 className="text-xl font-bold text-center">Create Match</h1>
 
