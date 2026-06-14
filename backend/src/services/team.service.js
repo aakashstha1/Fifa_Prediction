@@ -3,7 +3,7 @@ import Team from "../models/team.model.js";
 import mongoose from "mongoose";
 
 export const getAllTeams = async () => {
-  const teams = await Team.find();
+  const teams = await Team.find().sort({ name: 1 });
   return teams;
 };
 
