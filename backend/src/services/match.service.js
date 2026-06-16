@@ -54,7 +54,7 @@ export const getAllMatches = async () => {
     .populate("team1")
     .populate("team2")
     .populate("winningTeam")
-    .sort({ matchNo: 1 });
+    .sort({ matchNo: -1 });
   return matches;
 };
 
@@ -123,7 +123,6 @@ export const deleteMatchService = async (id) => {
 // };
 
 export const updateMatchWin = async (id, { teamId, isDraw }) => {
-
   validateObjectId(id, "matchId");
 
   // ❌ prevent both

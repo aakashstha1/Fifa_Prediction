@@ -3,12 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGetMatches } from "@/hooks/matches/useGetMatches";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 
 import {
   AlertDialog,
@@ -35,38 +30,40 @@ function PredictMatches() {
     (myPredictions || []).map((p) => p.match?._id || p.match),
   );
 
-  const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-
   const [selectedMatch, setSelectedMatch] = useState(null);
-  const [prediction, setPrediction] = useState("");
+  const [predictions, setPredictions] = useState({});
 
-  // OPEN PREDICT DIALOG
-  const handlePredictClick = (match) => {
+  // FINAL CONFIRM ACTION
+  const handleSubmitClick = (match) => {
+    const selectedPrediction = predictions[match._id];
+
+    if (!selectedPrediction) {
+      toast.error("Please select a winner");
+      return;
+    }
+
     setSelectedMatch(match);
-    setPrediction("");
-    setOpen(true);
-  };
-
-  // SUBMIT CLICK → SHOW CONFIRMATION
-  const handleSubmit = () => {
-    if (!prediction) return;
     setConfirmOpen(true);
   };
 
-  // FINAL CONFIRM ACTION
   const handleConfirm = () => {
     createPrediction(
       {
         match: selectedMatch._id,
-        predictedWinner: prediction,
+        predictedWinner: predictions[selectedMatch._id],
       },
       {
         onSuccess: () => {
           toast.success("Prediction submitted successfully");
+
+          setPredictions((prev) => {
+            const updated = { ...prev };
+            delete updated[selectedMatch._id];
+            return updated;
+          });
+
           setConfirmOpen(false);
-          setOpen(false);
-          setPrediction("");
         },
         onError: (error) => {
           toast.error(error?.response?.data?.message || "Prediction failed");
@@ -74,7 +71,6 @@ function PredictMatches() {
       },
     );
   };
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-2xl font-bold mb-6">Matches</h1>
@@ -94,12 +90,7 @@ function PredictMatches() {
             const isEnded = match.ended;
             const alreadyPredicted = predictedMatchIds.has(match._id);
 
-            const isDisabled = isEnded || alreadyPredicted;
-            const buttonText = isEnded
-              ? "Match Ended"
-              : alreadyPredicted
-                ? "Already Predicted"
-                : "Predict Now";
+            
             return (
               <Card
                 key={match._id}
@@ -143,49 +134,64 @@ function PredictMatches() {
                 </div>
 
                 {/* BUTTON */}
-                <Button
-                  className="w-full"
-                  disabled={isDisabled}
-                  onClick={() => !isDisabled && handlePredictClick(match)}
-                >
-                  {buttonText}
-                </Button>
+                <div className="space-y-3">
+                  {!alreadyPredicted && !isEnded ? (
+                    <>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`prediction-${match._id}`}
+                            value={match.team1._id}
+                            checked={predictions[match._id] === match.team1._id}
+                            onChange={(e) =>
+                              setPredictions((prev) => ({
+                                ...prev,
+                                [match._id]: e.target.value,
+                              }))
+                            }
+                          />
+                          {match.team1.name}
+                        </label>
+
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input
+                            type="radio"
+                            name={`prediction-${match._id}`}
+                            value={match.team2._id}
+                            checked={predictions[match._id] === match.team2._id}
+                            onChange={(e) =>
+                              setPredictions((prev) => ({
+                                ...prev,
+                                [match._id]: e.target.value,
+                              }))
+                            }
+                          />
+                          {match.team2.name}
+                        </label>
+                      </div>
+
+                      <Button
+                        className="w-full"
+                        disabled={!predictions[match._id]}
+                        onClick={() => handleSubmitClick(match)}
+                      >
+                        Submit Prediction
+                      </Button>
+                    </>
+                  ) : (
+                    <Button className="w-full" disabled>
+                      {isEnded ? "Match Ended" : "Already Predicted"}
+                    </Button>
+                  )}
+                </div>
               </Card>
             );
           })}
         </div>
       )}
 
-      {/* PREDICT DIALOG */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Predict Winner</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <select
-              className="w-full border rounded-md p-2"
-              value={prediction}
-              onChange={(e) => setPrediction(e.target.value)}
-            >
-              <option value="">Select Winner</option>
-              <option value={selectedMatch?.team1?._id}>
-                {selectedMatch?.team1?.name}
-              </option>
-              <option value={selectedMatch?.team2?._id}>
-                {selectedMatch?.team2?.name}
-              </option>
-            </select>
-            <Button
-              className="w-full"
-              onClick={handleSubmit}
-              disabled={!prediction}
-            >
-              Submit Prediction
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      
 
       {/* CONFIRM ALERT */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>

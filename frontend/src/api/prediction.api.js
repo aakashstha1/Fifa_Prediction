@@ -15,7 +15,7 @@ export const getAllPredictions = async (page, userId, matchId) => {
   const { data } = await api.get("/predictions", {
     params: {
       page,
-      limit: 10,
+      limit: 20,
       ...(userId && { userId }),
       ...(matchId && { matchId }),
     },

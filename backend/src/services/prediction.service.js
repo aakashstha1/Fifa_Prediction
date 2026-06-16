@@ -70,7 +70,7 @@ export const getAllMyPredictions = async (userId) => {
 // };
 export const getAllPredictions = async ({
   page = 1,
-  limit = 10,
+  limit = 20,
   userId,
   matchId,
 }) => {
