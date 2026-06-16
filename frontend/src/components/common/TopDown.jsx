@@ -21,6 +21,8 @@ function TopDown() {
   const { data, isLoading } = useGetUsers();
   const { data: matches, isLoading: matchesLoading } = useGetMatches();
 
+  const completedMatches = matches.filter((match) => match.ended);
+
   const users = useMemo(() => data || [], [data]);
 
   // sort by correct predictions
@@ -47,7 +49,7 @@ function TopDown() {
       {!matchesLoading && (
         <p className="font-semibold">
           Matches Completed :
-          <span classname="font-bold"> {matches?.length}</span>
+          <span classname="font-bold"> {completedMatches?.length}</span>
         </p>
       )}
 
