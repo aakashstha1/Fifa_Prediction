@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { useGetUsers } from "@/hooks/users/useGetUsers";
 import Loader from "./Loader";
+import { useGetMatches } from "@/hooks/matches/useGetMatches";
 
 const getRankStyle = (index) => {
   if (index === 0) return "bg-yellow-100 text-yellow-800"; // gold
@@ -18,6 +19,7 @@ const getMedal = (index) => {
 };
 function TopDown() {
   const { data, isLoading } = useGetUsers();
+  const { data: matches, isLoading: matchesLoading } = useGetMatches();
 
   const users = useMemo(() => data || [], [data]);
 
@@ -42,6 +44,12 @@ function TopDown() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-10 ">
       <h1 className="text-2xl font-bold">Leaderboard</h1>
+      {!matchesLoading && (
+        <p className="font-semibold">
+          Matches Completed :
+          <span classname="font-bold"> {matches?.length}</span>
+        </p>
+      )}
 
       {/* ---------------- CORRECT TABLE ---------------- */}
       <Card className="p-4 max-w-6xl mx-auto">

@@ -14,8 +14,8 @@ function Navbar({ role = "user" }) {
   const userLinks = [
     { name: "Dashboard", path: "/dashboard" },
     { name: "Matches", path: "/matches" },
-    { name: "Predictions", path: "/predictions" },
     { name: "My Predictions", path: "/my-predictions" },
+    { name: "All Predictions", path: "/predictions" },
   ];
 
   const adminLinks = [
@@ -23,7 +23,7 @@ function Navbar({ role = "user" }) {
     { name: "Teams", path: "/admin/teams" },
     { name: "Matches", path: "/admin/matches" },
     { name: "Users", path: "/admin/users" },
-    { name: "Predictions", path: "/predictions" },
+    { name: "All Predictions", path: "/predictions" },
   ];
 
   const links = role === "admin" ? adminLinks : userLinks;

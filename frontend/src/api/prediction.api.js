@@ -2,7 +2,6 @@ import { api } from "@/configs/axios-config";
 
 export const createPrediction = async (data) => {
   const res = await api.post("/predictions", data);
-  console.log(data);
   return res.data;
 };
 
