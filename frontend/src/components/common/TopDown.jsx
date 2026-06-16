@@ -21,7 +21,9 @@ function TopDown() {
   const { data, isLoading } = useGetUsers();
   const { data: matches, isLoading: matchesLoading } = useGetMatches();
 
-  const completedMatches = matches.filter((match) => match.ended);
+  const completedMatches = useMemo(() => {
+    return (matches || []).filter((match) => match.ended);
+  }, [matches]);
 
   const users = useMemo(() => data || [], [data]);
 
@@ -49,7 +51,7 @@ function TopDown() {
       {!matchesLoading && (
         <p className="font-semibold">
           Matches Completed :
-          <span classname="font-bold"> {completedMatches?.length}</span>
+          <span className="font-bold"> {completedMatches?.length}</span>
         </p>
       )}
 
