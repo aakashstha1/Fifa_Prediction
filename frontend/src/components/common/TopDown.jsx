@@ -55,53 +55,54 @@ function TopDown() {
       <Card className="p-4 max-w-6xl mx-auto">
         <h2 className="text-lg font-semibold mb-4">Prediction Leaderboard</h2>
 
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left border-b">
-              <th className="p-2">Rank</th>
-              <th className="p-2">User</th>
-              <th className="p-2">Correct</th>
-              <th className="p-2">Wrong</th>
-              <th className="p-2">Accuracy</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {leaderboard.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-6 text-center text-gray-400">
-                  No data yet.
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px] text-sm">
+            <thead>
+              <tr className="text-left border-b">
+                <th className="p-2">Rank</th>
+                <th className="p-2">User</th>
+                <th className="p-2">Correct</th>
+                <th className="p-2">Wrong</th>
+                <th className="p-2">Accuracy</th>
               </tr>
-            ) : (
-              leaderboard.map((user, index) => {
-                const correct = user.correctPredictions || 0;
-                const wrong = user.wrongPredictions || 0;
-                const total = correct + wrong;
+            </thead>
 
-                const accuracy =
-                  total > 0 ? ((correct / total) * 100).toFixed(1) : 0;
+            <tbody>
+              {leaderboard.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-6 text-center text-gray-400">
+                    No data yet.
+                  </td>
+                </tr>
+              ) : (
+                leaderboard.map((user, index) => {
+                  const correct = user.correctPredictions || 0;
+                  const wrong = user.wrongPredictions || 0;
+                  const total = correct + wrong;
+                  const accuracy =
+                    total > 0 ? ((correct / total) * 100).toFixed(1) : 0;
 
-                return (
-                  <tr
-                    key={user._id}
-                    className={`border-b ${getRankStyle(index)}`}
-                  >
-                    <td className="p-2 font-bold">{getMedal(index)}</td>
-
-                    <td className="p-2 font-medium">{user.name}</td>
-
-                    <td className="p-2 text-green-600 font-bold">{correct}</td>
-
-                    <td className="p-2 text-red-600 font-bold">{wrong}</td>
-
-                    <td className="p-2 font-semibold">{accuracy}%</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                  return (
+                    <tr
+                      key={user._id}
+                      className={`border-b ${getRankStyle(index)}`}
+                    >
+                      <td className="p-2 font-bold">{getMedal(index)}</td>
+                      <td className="p-2 font-medium whitespace-nowrap">
+                        {user.name}
+                      </td>
+                      <td className="p-2 text-green-600 font-bold">
+                        {correct}
+                      </td>
+                      <td className="p-2 text-red-600 font-bold">{wrong}</td>
+                      <td className="p-2 font-semibold">{accuracy}%</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );
