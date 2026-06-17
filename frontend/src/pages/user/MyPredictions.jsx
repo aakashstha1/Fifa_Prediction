@@ -3,17 +3,26 @@ import { Card } from "@/components/ui/card";
 import { useGetMyPredictions } from "@/hooks/predictions/useGetMyPredictions";
 import { useAuth } from "@/hooks/useAuth";
 import { toNepalTime } from "@/helper/nepal-time";
+import { useState } from "react";
 
 function MyPredictions() {
-  const { data, isLoading } = useGetMyPredictions();
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isFetching } = useGetMyPredictions(page);
   const { user } = useAuth();
-  const predictions = data || [];
+  const predictions = data?.data || [];
+  const hasMore = data?.hasMore;
+  const total = data?.total;
+  const isPageLoading = isFetching;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-2xl font-bold mb-6">My Predictions</h1>
       <div className="flex items-center gap-10">
         {" "}
+        <div className="mb-6">
+          Total Predictions: <span className="font-bold">{total}</span>
+        </div>
         <div className="mb-6 text-gray-600">
           Correct Predictions:{" "}
           <span className="font-bold text-green-600">
@@ -35,94 +44,115 @@ function MyPredictions() {
       ) : predictions.length === 0 ? (
         <p className="text-gray-500">No predictions found</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {predictions.map((p) => {
-            const match = p.match;
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {predictions.map((p) => {
+              const match = p.match;
 
-            const winnerId = match?.winningTeam?._id || match?.winningTeam;
-            const predictedId = p?.predictedWinner?._id || p?.predictedWinner;
+              const winnerId = match?.winningTeam?._id || match?.winningTeam;
+              const predictedId = p?.predictedWinner?._id || p?.predictedWinner;
 
-            const isResolved = Boolean(match?.ended);
-            const isDraw = match?.isDraw === true;
-            let isCorrect = false;
+              const isResolved = Boolean(match?.ended);
+              const isDraw = match?.isDraw === true;
+              let isCorrect = false;
 
-            if (isResolved) {
-              if (isDraw) {
-                isCorrect = false; // draw is neutral (not correct/wrong)
-              } else {
-                isCorrect = String(winnerId) === String(predictedId);
+              if (isResolved) {
+                if (isDraw) {
+                  isCorrect = false; // draw is neutral (not correct/wrong)
+                } else {
+                  isCorrect = String(winnerId) === String(predictedId);
+                }
               }
-            }
-            return (
-              <Card
-                key={p._id}
-                className="p-4 space-y-3 shadow-sm hover:shadow-md transition"
-              >
-                {/* HEADER */}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-600">
-                    Match #{match?.matchNo}
-                  </span>
-
-                  {/* STATUS */}
-                  {isResolved ? (
-                    isDraw ? (
-                      <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700">
-                        🤝 Draw
-                      </span>
-                    ) : isCorrect ? (
-                      <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
-                        Correct ✓
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
-                        Wrong ✕
-                      </span>
-                    )
-                  ) : (
-                    <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">
-                      Pending
+              return (
+                <Card
+                  key={p._id}
+                  className="p-4 space-y-3 shadow-sm hover:shadow-md transition"
+                >
+                  {/* HEADER */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-600">
+                      Match #{match?.matchNo}
                     </span>
-                  )}
-                </div>
 
-                {/* TEAMS */}
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span>{match?.team1?.name}</span>
+                    {/* STATUS */}
+                    {isResolved ? (
+                      isDraw ? (
+                        <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700">
+                          🤝 Draw
+                        </span>
+                      ) : isCorrect ? (
+                        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
+                          Correct ✓
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
+                          Wrong ✕
+                        </span>
+                      )
+                    ) : (
+                      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">
+                        Pending
+                      </span>
+                    )}
+                  </div>
 
-                  <span className="text-xs px-2 py-0.5 bg-gray-200 rounded-full">
-                    vs
-                  </span>
+                  {/* TEAMS */}
+                  <div className="flex items-center justify-between text-sm font-medium">
+                    <span>{match?.team1?.name}</span>
 
-                  <span>{match?.team2?.name}</span>
-                </div>
+                    <span className="text-xs px-2 py-0.5 bg-gray-200 rounded-full">
+                      vs
+                    </span>
 
-                {/* MY PREDICTION */}
-                <div className="text-sm text-gray-700">
-                  My Prediction:
-                  <span className="ml-1 font-semibold">
-                    {p?.predictedWinner?.name}
-                  </span>
-                </div>
+                    <span>{match?.team2?.name}</span>
+                  </div>
 
-                {/* WINNER (if available) */}
-                {match?.winningTeam && (
+                  {/* MY PREDICTION */}
                   <div className="text-sm text-gray-700">
-                    Winner:
-                    <span className="ml-1 font-semibold text-green-600">
-                      {match?.winningTeam?.name || "Unknown"}
+                    My Prediction:
+                    <span className="ml-1 font-semibold">
+                      {p?.predictedWinner?.name}
                     </span>
                   </div>
-                )}
 
-                {/* TIME */}
-                <div className="text-xs text-gray-500">
-                  {match?.matchTime && toNepalTime(match?.matchTime)}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                  {/* WINNER (if available) */}
+                  {match?.winningTeam && (
+                    <div className="text-sm text-gray-700">
+                      Winner:
+                      <span className="ml-1 font-semibold text-green-600">
+                        {match?.winningTeam?.name || "Unknown"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* TIME */}
+                  <div className="text-xs text-gray-500">
+                    {match?.matchTime && toNepalTime(match?.matchTime)}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+          <div className="flex justify-center gap-2 mt-6">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <span className="px-3 py-1 text-sm">Page {page}</span>
+
+            <button
+              disabled={!hasMore || isPageLoading}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

@@ -19,69 +19,96 @@ import { toNepalTime } from "@/helper/nepal-time";
 import { useGetMyPredictions } from "@/hooks/predictions/useGetMyPredictions";
 
 function PredictMatches() {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useGetMatches();
-  const { data: myPredictions } = useGetMyPredictions();
+  const { data: myPredictionsData } = useGetMyPredictions(page);
   const { mutate: createPrediction, isPending } = useCreatePrediction();
   const matches = data || [];
+  const myPredictions = myPredictionsData?.data || [];
 
   const predictedMatchIds = new Set(
     (myPredictions || []).map((p) => p.match?._id || p.match),
   );
-
   const [confirmOpen, setConfirmOpen] = useState(false);
   // FIX 1: Store only the match ID, not the whole object, to avoid stale references
-  const [selectedMatchId, setSelectedMatchId] = useState(null);
   const [predictions, setPredictions] = useState({});
   const [filter, setFilter] = useState("all");
 
-  const handleSubmitClick = (match) => {
-    const selectedPrediction = predictions[match._id];
+  // const handleSubmitClick = (match) => {
+  //   const selectedPrediction = predictions[match._id];
 
-    if (!selectedPrediction) {
-      toast.error("Please select a winner");
+  //   if (!selectedPrediction) {
+  //     toast.error("Please select a winner");
+  //     return;
+  //   }
+
+  //   setSelectedMatchId(match._id);
+  //   setConfirmOpen(true);
+  // };
+
+  // const handleConfirm = () => {
+  //   // FIX 1 (cont): Look up the fresh match object from live data
+  //   const selectedMatch = matches.find((m) => m._id === selectedMatchId);
+
+  //   if (!selectedMatch) {
+  //     toast.error("Match not found. Please try again.");
+  //     setConfirmOpen(false);
+  //     return;
+  //   }
+
+  //   createPrediction(
+  //     {
+  //       match: selectedMatch._id,
+  //       predictedWinner: predictions[selectedMatch._id],
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         toast.success("Prediction submitted successfully");
+
+  //         setPredictions((prev) => {
+  //           const updated = { ...prev };
+  //           delete updated[selectedMatch._id];
+  //           return updated;
+  //         });
+
+  //         setConfirmOpen(false);
+  //         setSelectedMatchId(null);
+  //       },
+  //       // FIX 2: Close dialog on error so user isn't stuck
+  //       onError: (error) => {
+  //         toast.error(error?.response?.data?.message || "Prediction failed");
+  //         setConfirmOpen(false);
+  //         setSelectedMatchId(null);
+  //       },
+  //     },
+  //   );
+  // };
+
+  const handleConfirm = async () => {
+    const entries = Object.entries(predictions);
+
+    if (entries.length === 0) {
+      toast.error("No predictions selected");
       return;
     }
 
-    setSelectedMatchId(match._id);
-    setConfirmOpen(true);
-  };
+    try {
+      for (const [matchId, teamId] of entries) {
+        await createPrediction({
+          match: matchId,
+          predictedWinner: teamId,
+        });
+      }
 
-  const handleConfirm = () => {
-    // FIX 1 (cont): Look up the fresh match object from live data
-    const selectedMatch = matches.find((m) => m._id === selectedMatchId);
+      toast.success("All predictions submitted!");
 
-    if (!selectedMatch) {
-      toast.error("Match not found. Please try again.");
+      setPredictions({});
       setConfirmOpen(false);
-      return;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to submit predictions",
+      );
     }
-
-    createPrediction(
-      {
-        match: selectedMatch._id,
-        predictedWinner: predictions[selectedMatch._id],
-      },
-      {
-        onSuccess: () => {
-          toast.success("Prediction submitted successfully");
-
-          setPredictions((prev) => {
-            const updated = { ...prev };
-            delete updated[selectedMatch._id];
-            return updated;
-          });
-
-          setConfirmOpen(false);
-          setSelectedMatchId(null);
-        },
-        // FIX 2: Close dialog on error so user isn't stuck
-        onError: (error) => {
-          toast.error(error?.response?.data?.message || "Prediction failed");
-          setConfirmOpen(false);
-          setSelectedMatchId(null);
-        },
-      },
-    );
   };
 
   const totalMatches = matches.length;
@@ -105,13 +132,14 @@ function PredictMatches() {
     return true;
   });
 
-  // FIX 3: Derive selectedMatch fresh from live data for use in the dialog
-  const selectedMatch = matches.find((m) => m._id === selectedMatchId);
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-2xl font-bold mb-6">Matches</h1>
-      <div className="flex gap-2 mb-6 flex-wrap">
+    <div className="min-h-screen bg-gray-50 p-6 pb-28">
+      <h1 className="text-2xl font-bold mb-4">Matches</h1>
+      <p className="text-sm text-gray-600 bg-gray-100 border border-gray-200 rounded-md px-3 py-2 mb-4">
+        You can now select predictions for multiple matches and submit them all
+        at once with a single click.
+      </p>
+      <div className="flex gap-2 mb-4 flex-wrap">
         <Button
           variant={filter === "all" ? "default" : "outline"}
           onClick={() => setFilter("all")}
@@ -150,119 +178,156 @@ function PredictMatches() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayMatches.map((match) => {
-            const isEnded = match.ended;
-            const alreadyPredicted = predictedMatchIds.has(match._id);
+        <>
+          <Button
+            className="mb-4 hidden md:block"
+            disabled={Object.keys(predictions).length === 0 || isPending}
+            onClick={() => setConfirmOpen(true)}
+          >
+            Submit All Predictions
+          </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayMatches.map((match) => {
+              const isEnded = match.ended;
+              const alreadyPredicted = predictedMatchIds.has(match._id);
 
-            // FIX 4: Show red dot if ended regardless of winningTeam/isDraw being set
-            const isActive = !isEnded;
+              // FIX 4: Show red dot if ended regardless of winningTeam/isDraw being set
+              const isActive = !isEnded;
 
-            return (
-              <Card
-                key={match._id}
-                className="p-4 space-y-3 shadow-sm hover:shadow-md transition"
-              >
-                {/* STATUS */}
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-2.5 h-2.5 rounded-full ${
-                      isActive ? "bg-green-500 animate-pulse" : "bg-red-500"
-                    }`}
-                  />
-                  <span className="text-sm font-semibold">
-                    Match #{match.matchNo}
-                  </span>
-                </div>
-
-                {/* TEAMS */}
-                <div className="flex items-center justify-between font-medium">
-                  <span>{match?.team1?.name}</span>
-                  <span className="text-xs px-2 py-1 bg-gray-200 rounded-full">
-                    vs
-                  </span>
-                  <span>{match?.team2?.name}</span>
-                </div>
-
-                {/* RESULT */}
-                {match?.isDraw ? (
-                  <div className="text-xs text-green-600 font-semibold">
-                    🤝 Draw
+              return (
+                <Card
+                  key={match._id}
+                  className="p-4 space-y-3 shadow-sm hover:shadow-md transition"
+                >
+                  {/* STATUS */}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        isActive ? "bg-green-500 animate-pulse" : "bg-red-500"
+                      }`}
+                    />
+                    <span className="text-sm font-semibold">
+                      Match #{match.matchNo}
+                    </span>
                   </div>
-                ) : match?.winningTeam ? (
-                  <div className="text-xs text-green-600 font-semibold">
-                    🏆 Winner: {match?.winningTeam?.name || match?.winningTeam}
+
+                  {/* TEAMS */}
+                  <div className="flex items-center justify-between font-medium">
+                    <span>{match?.team1?.name}</span>
+                    <span className="text-xs px-2 py-1 bg-gray-200 rounded-full">
+                      vs
+                    </span>
+                    <span>{match?.team2?.name}</span>
                   </div>
-                ) : isEnded ? (
-                  // FIX 4 (cont): Handle ended matches with no recorded result
-                  <div className="text-xs text-gray-500 font-semibold">
-                    Match concluded
+
+                  {/* RESULT */}
+                  {match?.isDraw ? (
+                    <div className="text-xs text-green-600 font-semibold">
+                      🤝 Draw
+                    </div>
+                  ) : match?.winningTeam ? (
+                    <div className="text-xs text-green-600 font-semibold">
+                      🏆 Winner:{" "}
+                      {match?.winningTeam?.name || match?.winningTeam}
+                    </div>
+                  ) : isEnded ? (
+                    // FIX 4 (cont): Handle ended matches with no recorded result
+                    <div className="text-xs text-gray-500 font-semibold">
+                      Match concluded
+                    </div>
+                  ) : null}
+
+                  {/* TIME */}
+                  <div className="text-xs text-gray-500">
+                    {toNepalTime(match?.matchTime)}
                   </div>
-                ) : null}
 
-                {/* TIME */}
-                <div className="text-xs text-gray-500">
-                  {toNepalTime(match?.matchTime)}
-                </div>
+                  {/* PREDICTION */}
+                  <div className="space-y-3">
+                    {!alreadyPredicted && !isEnded ? (
+                      <>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`prediction-${match._id}`}
+                              disabled={isEnded || alreadyPredicted}
+                              value={match.team1._id}
+                              checked={
+                                predictions[match._id] === match.team1._id
+                              }
+                              onChange={(e) =>
+                                setPredictions((prev) => ({
+                                  ...prev,
+                                  [match._id]: e.target.value,
+                                }))
+                              }
+                            />
+                            {match.team1.name}
+                          </label>
 
-                {/* PREDICTION */}
-                <div className="space-y-3">
-                  {!alreadyPredicted && !isEnded ? (
-                    <>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input
-                            type="radio"
-                            name={`prediction-${match._id}`}
-                            disabled={isEnded || alreadyPredicted}
-                            value={match.team1._id}
-                            checked={predictions[match._id] === match.team1._id}
-                            onChange={(e) =>
-                              setPredictions((prev) => ({
-                                ...prev,
-                                [match._id]: e.target.value,
-                              }))
-                            }
-                          />
-                          {match.team1.name}
-                        </label>
+                          <label className="flex items-center gap-2 text-sm cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`prediction-${match._id}`}
+                              disabled={isEnded || alreadyPredicted}
+                              value={match.team2._id}
+                              checked={
+                                predictions[match._id] === match.team2._id
+                              }
+                              onChange={(e) =>
+                                setPredictions((prev) => ({
+                                  ...prev,
+                                  [match._id]: e.target.value,
+                                }))
+                              }
+                            />
+                            {match.team2.name}
+                          </label>
+                        </div>
 
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input
-                            type="radio"
-                            name={`prediction-${match._id}`}
-                            disabled={isEnded || alreadyPredicted}
-                            value={match.team2._id}
-                            checked={predictions[match._id] === match.team2._id}
-                            onChange={(e) =>
-                              setPredictions((prev) => ({
-                                ...prev,
-                                [match._id]: e.target.value,
-                              }))
-                            }
-                          />
-                          {match.team2.name}
-                        </label>
-                      </div>
-
-                      <Button
-                        className="w-full"
-                        disabled={!predictions[match._id]}
-                        onClick={() => handleSubmitClick(match)}
-                      >
-                        Submit Prediction
+                        {/* <Button
+                          className="w-full"
+                          disabled={!predictions[match._id]}
+                          onClick={() => handleSubmitClick(match)}
+                        >
+                          Submit Prediction
+                        </Button> */}
+                      </>
+                    ) : (
+                      <Button className="w-full" disabled>
+                        {isEnded ? "Match Ended" : "Already Predicted"}
                       </Button>
-                    </>
-                  ) : (
-                    <Button className="w-full" disabled>
-                      {isEnded ? "Match Ended" : "Already Predicted"}
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                    )}
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+          <div className="flex justify-center gap-2 mt-6">
+            <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              Prev
+            </Button>
+
+            <span className="px-3 py-2 text-sm">Page {page}</span>
+
+            <Button
+              disabled={!myPredictionsData?.hasMore}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+          <div className="fixed lg:hidden bottom-0 left-0 right-0 p-3 bg-white border-t shadow-md z-50 md:static md:p-0 md:bg-transparent md:border-0 md:shadow-none">
+            <Button
+              className="w-full md:w-auto"
+              disabled={Object.keys(predictions).length === 0 || isPending}
+              onClick={() => setConfirmOpen(true)}
+            >
+              Submit All Predictions
+            </Button>
+          </div>
+        </>
       )}
 
       {/* CONFIRM ALERT */}
@@ -272,13 +337,8 @@ function PredictMatches() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           </AlertDialogHeader>
           <p className="text-sm text-gray-600">
-            {selectedMatch
-              ? `You are predicting ${
-                  predictions[selectedMatchId] === selectedMatch.team1._id
-                    ? selectedMatch.team1.name
-                    : selectedMatch.team2.name
-                } to win Match #${selectedMatch.matchNo}.`
-              : "Once submitted, your prediction cannot be undone."}
+            You are submitting {Object.keys(predictions).length} predictions.
+            Once submitted, they cannot be changed.
           </p>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

@@ -15,10 +15,23 @@ export const createPrediction = async (req, res, next) => {
   }
 };
 
+// export const getMyPredictions = async (req, res, next) => {
+//   try {
+//     const predictions = await getAllMyPredictions(req.user._id);
+//     res.json(predictions);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 export const getMyPredictions = async (req, res, next) => {
   try {
-    const predictions = await getAllMyPredictions(req.user._id);
-    res.json(predictions);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const result = await getAllMyPredictions(req.user._id, page, limit);
+
+    res.json(result);
   } catch (err) {
     next(err);
   }
