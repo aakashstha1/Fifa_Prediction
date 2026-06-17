@@ -46,19 +46,7 @@ export const createPredictionService = async (data, userId) => {
 };
 
 // ----------------------------------------------------- Get My Predictions --------------------------------------------
-// export const getAllMyPredictions = async (userId) => {
-//   const predictions = await Prediction.find({ user: userId })
-//     .populate("user")
-//     .populate("predictedWinner")
-//     .populate({
-//       path: "match",
-//       populate: [{ path: "team1" }, { path: "team2" }, { path: "winningTeam" }],
-//     });
-//   return predictions;
-// };
-export const getAllMyPredictions = async (userId, page = 1, limit = 20) => {
-  const skip = (page - 1) * limit;
-
+export const getAllMyPredictions = async (userId) => {
   const predictions = await Prediction.find({ user: userId })
     .populate("user")
     .populate("predictedWinner")
@@ -66,17 +54,8 @@ export const getAllMyPredictions = async (userId, page = 1, limit = 20) => {
       path: "match",
       populate: [{ path: "team1" }, { path: "team2" }, { path: "winningTeam" }],
     })
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-  const total = await Prediction.countDocuments({ user: userId });
-
-  return {
-    data: predictions,
-    total,
-    hasMore: skip + predictions.length < total,
-  };
+    .sort({ createdAt: -1 });
+  return predictions;
 };
 
 // ------------------------------------------------------ Get Predictions --------------------------------------------

@@ -22,12 +22,7 @@ export const getAllPredictions = async (page, userId, matchId) => {
   return data;
 };
 
-export const getMyPredictions = async (page) => {
-  const res = await api.get("/predictions/me", {
-    params: {
-      page,
-      limit: 20,
-    },
-  });
+export const getMyPredictions = async () => {
+  const res = await api.get("/predictions/me");
   return res.data;
 };
