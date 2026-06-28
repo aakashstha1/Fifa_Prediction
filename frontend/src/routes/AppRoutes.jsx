@@ -18,6 +18,7 @@ import Users from "@/pages/admin/Users";
 import PredictMatches from "@/pages/user/PredictMatches";
 import MyPredictions from "@/pages/user/MyPredictions";
 import Predictions from "@/components/common/Predictions";
+import Tiesheet from "@/components/common/Tiesheet";
 
 function AppRoutes() {
   return (
@@ -80,6 +81,7 @@ function AppRoutes() {
           }
         >
           <Route path="/predictions" element={<Predictions />} />
+          <Route path="/bracket" element={<Tiesheet />} />
         </Route>
 
         {/* Root Route */}

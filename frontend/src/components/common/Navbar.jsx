@@ -15,6 +15,7 @@ function Navbar({ role = "user" }) {
     { name: "Dashboard", path: "/dashboard" },
     { name: "Matches", path: "/matches" },
     { name: "My Predictions", path: "/my-predictions" },
+    { name: "Bracket", path: "/bracket" },
     { name: "All Predictions", path: "/predictions" },
   ];
 
@@ -23,6 +24,7 @@ function Navbar({ role = "user" }) {
     { name: "Teams", path: "/admin/teams" },
     { name: "Matches", path: "/admin/matches" },
     { name: "Users", path: "/admin/users" },
+    { name: "Bracket", path: "/bracket" },
     { name: "All Predictions", path: "/predictions" },
   ];
 

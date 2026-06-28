@@ -34,8 +34,8 @@ function Matches() {
   const { data, isLoading } = useGetMatches();
 
   const { mutate: createMatch, isPending: creating } = useCreateMatch();
-  const { mutate: deleteMatch } = useDeleteMatch();
-  const { mutate: updateMatch } = useUpdateMatch();
+  const { mutate: deleteMatch, isPending: deleting } = useDeleteMatch();
+  const { mutate: updateMatch, isPending: updating } = useUpdateMatch();
   const { data: teamData } = useGetTeam();
 
   const teams = (teamData?.teams || teamData || []).filter((t) => !t.isOut);
@@ -163,7 +163,7 @@ function Matches() {
             </div>
 
             <Button type="submit" className="w-full" disabled={creating}>
-              {creating ? "Creating..." : "Create"}
+              {creating ? "..." : "Create"}
             </Button>
           </form>
         </Card>
@@ -250,8 +250,9 @@ function Matches() {
                           onSuccess: () => toast.success("Match deleted"),
                         })
                       }
+                      disabled={deleting}
                     >
-                      Delete
+                      {deleting ? "..." : " Delete"}
                     </Button>
                   </div>
                 </div>
@@ -299,8 +300,12 @@ function Matches() {
               </option>
             </select>
 
-            <Button onClick={handleUpdate} className="w-full">
-              Submit
+            <Button
+              onClick={handleUpdate}
+              className="w-full"
+              disabled={updating}
+            >
+              {updating ? "..." : "Submit"}
             </Button>
           </div>
         </DialogContent>
